@@ -23,8 +23,17 @@
 #define MPU6050_ACCEL_CONFIG_REGISTER 0x1c
 #define MPU6050_PWR_MGMT_1_REGISTER   0x6b
 
-#define MPU6050_GYRO_OUT_REGISTER     0x43
+#define MPU6050_TEMP_OUT_REGISTER     0x41
+
+#define MPU6050_GYRO_X_OUT_REGISTER   0x43
+#define MPU6050_GYRO_Y_OUT_REGISTER   0x45
+#define MPU6050_GYRO_Z_OUT_REGISTER   0x47
+
 #define MPU6050_ACCEL_OUT_REGISTER    0x3B
+
+#define MPU6050_ACCEL_X_OUT_REGISTER  0x3B
+#define MPU6050_ACCEL_Y_OUT_REGISTER  0x3D
+#define MPU6050_ACCEL_Z_OUT_REGISTER  0x3F
 
 #define RAD_2_DEG             57.29578 // [deg/rad]
 #define CALIB_OFFSET_NB_MES   500
@@ -40,7 +49,7 @@ class MPU6050{
     byte begin(int gyro_config_num=1, int acc_config_num=0);
 	
 	byte writeData(byte reg, byte data);
-    byte readData(byte reg);
+    int16_t readData(int reg);
 	
 	void calcOffsets(bool is_calc_gyro=true, bool is_calc_acc=true);
 	void calcGyroOffsets(){ calcOffsets(true,false); }; // retro-compatibility with v1.0.0
@@ -92,6 +101,7 @@ class MPU6050{
 	// INLOOP UPDATE
 	void fetchData(); // user should better call 'update' that includes 'fetchData'
     void update();
+    void updateAngleZ();
 	
 	// UPSIDE DOWN MOUNTING
 	bool upsideDownMounting = false;

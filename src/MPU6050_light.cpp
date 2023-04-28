@@ -48,14 +48,17 @@ byte MPU6050::writeData(byte reg, byte data){
   return status; // 0 if success
 }
 
-// This method is not used internaly, maybe by user...
-byte MPU6050::readData(byte reg) {
+int16_t MPU6050::readData(int reg) {
   wire->beginTransmission(address);
   wire->write(reg);
-  wire->endTransmission(true);
-  wire->requestFrom(address,(uint8_t) 1);
-  byte data =  wire->read();
-  return data;
+  wire->endTransmission(false);
+  wire->requestFrom(address, (uint8_t)2);
+
+  int16_t rawData;
+  rawData = wire->read() << 8;
+  rawData |= wire->read();
+
+  return rawData;
 }
 
 /* SETTER */
@@ -207,4 +210,12 @@ void MPU6050::update(){
   angleY = wrap(filterGyroCoef*(angleAccY + wrap(angleY + sgZ*gyroY*dt - angleAccY, 90)) + (1.0-filterGyroCoef)*angleAccY, 90);
   angleZ += gyroZ*dt; // not wrapped
 
+}
+
+void MPU6050::updateAngleZ(){
+  unsigned long Tnew = micros();
+  float dt = (Tnew - preInterval) * 1e-6;
+  preInterval = Tnew;
+
+  angleZ += (((float)readData(MPU6050_GYRO_Z_OUT_REGISTER)) / gyro_lsb_to_degsec - gyroZoffset) * dt;
 }
